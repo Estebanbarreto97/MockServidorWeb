@@ -1,9 +1,18 @@
 package ar.edu.unahur.obj2.servidorWeb
 
+import ar.edu.unahur.obj2.servidorWeb.analizadores.AnalizadorIPsSospechosas
 import ar.edu.unahur.obj2.servidorWeb.integraciones.Consola
 
 object ServidorWeb {
   val modulos = mutableListOf<Modulo>()
+  val analizadores = mutableListOf<AnalizadorIPsSospechosas>()
+
+  fun agregarAnalizador(analizador : AnalizadorIPsSospechosas){
+    analizadores.add(analizador)}
+
+  fun removerAnalizador(analizador: AnalizadorIPsSospechosas){
+    analizadores.remove(analizador)
+  }
 
   fun procesar(pedido: PedidoHttp): RespuestaHttp {
     if (obtenerProtocoloUrl(pedido.url) != "http") {
@@ -18,16 +27,13 @@ object ServidorWeb {
 
   fun obtenerExtensionUrl(url: String) = url.substringAfterLast(".")
 
-  fun obtenerRutaUrl(url: String): String {
-    val ruta = url.split("/").subList(3,url.split("/").size)
+  fun obtenerRutaUrl(url: String) = url.split("/").subList(3,url.split("/").size).joinToString("/")
 
-    return ruta.joinToString("/")
-  }
+  fun moduloElegido(pedido: PedidoHttp) = modulos.find{x -> x.extension.any{x -> x == obtenerExtensionUrl(pedido.url)}}
 
   fun respuestaDelModulo(pedido: PedidoHttp): RespuestaHttp {
-    val moduloElegido = modulos.find{x -> x.extension.any{x -> x == obtenerExtensionUrl(pedido.url)}}
     if (modulos.any{x -> x.extension.any{x -> x == obtenerExtensionUrl(pedido.url)}}) {
-      return RespuestaHttp(CodigoHttp.OK, moduloElegido!!.devuelve, moduloElegido!!.tiempo, pedido)
+      return RespuestaHttp(CodigoHttp.OK, moduloElegido(pedido)!!.devuelve, moduloElegido(pedido)!!.tiempo, pedido)
     }
     else {
       return RespuestaHttp(CodigoHttp.NOT_FOUND, "", 10, pedido)
@@ -40,4 +46,7 @@ object ServidorWeb {
 
   class Modulo(val extension: List<String>, val devuelve: String, val tiempo: Int)
 
+  fun enviarAnalizar(respuesta : RespuestaHttp, modulo: Modulo){
+    analizadores.forEach({})
+  }
 }
