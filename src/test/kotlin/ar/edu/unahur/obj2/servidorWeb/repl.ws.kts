@@ -16,5 +16,3 @@ val lista1 = listOf("hola como están", "adios", "hola","hola como estas", "hola
 
 lista1.count{ it.contains("hola")}
 
-(3*100) / lista1.size
-(3*100) / 6

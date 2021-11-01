@@ -44,9 +44,9 @@ object ServidorWeb {
 
   fun removerModulo(unModulo: Modulo) { modulos.remove(unModulo) }
 
-  class Modulo(val extension: List<String>, val devuelve: String, val tiempo: Int)
+  class Modulo(val extension: List<String>, val devuelve: String, val tiempo: Int, val nombre: String)
 
   fun enviarAnalizar(respuesta : RespuestaHttp, modulo: Modulo){
-    analizadores.forEach({})
+    analizadores.forEach{it.analizar(respuesta, modulo)}
   }
 }
