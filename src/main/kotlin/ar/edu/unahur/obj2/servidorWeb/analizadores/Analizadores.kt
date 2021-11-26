@@ -58,14 +58,6 @@ class monitorConDeteccionDeDemora(val demoraMaxima : Int) : Analizador{
 class estadistica() : Analizador{
   val respuestasRecibidas = mutableListOf<RespuestaHttp>()
 
-  override fun analizar(respuestaHttp: RespuestaHttp, modulo: Modulo){
-    respuestasRecibidas.add(respuestaHttp)
-    tiempoDeRespuestaPromedio()/*
-    cantidadDePedidosEntre()  los comenté porque necesitan que se les pase algo por parametro
-    cantidadDeRespuestasCon() */
-    porcentajeDePedidosConExito()
-  }
-
   fun tiempoDeRespuestaPromedio() = (respuestasRecibidas.sumBy { it.tiempo }) / respuestasRecibidas.size
 
 
