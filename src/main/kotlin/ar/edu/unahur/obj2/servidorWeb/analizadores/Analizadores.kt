@@ -59,24 +59,20 @@ class estadistica() : Analizador{
   val respuestasRecibidas = mutableListOf<RespuestaHttp>()
 
   override fun analizar(respuestaHttp: RespuestaHttp, modulo: Modulo){
+    respuestasRecibidas.add(respuestaHttp)
     tiempoDeRespuestaPromedio()/*
     cantidadDePedidosEntre()  los comenté porque necesitan que se les pase algo por parametro
     cantidadDeRespuestasCon() */
     porcentajeDePedidosConExito()
   }
 
-  fun tiempoDeRespuestaPromedio() {
-    (respuestasRecibidas.sumBy { it.tiempo }) / respuestasRecibidas.size
-  }
+  fun tiempoDeRespuestaPromedio() = (respuestasRecibidas.sumBy { it.tiempo }) / respuestasRecibidas.size
 
-  fun cantidadDePedidosEntre(tiempo1 : LocalDateTime, tiempo2 : LocalDateTime) {
-    respuestasRecibidas.filter { it.pedido.fechaHora.isAfter(tiempo1) && it.pedido.fechaHora.isBefore(tiempo2) }.size
-  }
-  fun cantidadDeRespuestasCon(palabra: String) {
-    respuestasRecibidas.count{ it.body.contains(palabra)}
-  }
 
-  fun porcentajeDePedidosConExito() {
-    (respuestasRecibidas.count { it.codigo == CodigoHttp.OK } * 100) / respuestasRecibidas.size
-  }
+  fun cantidadDePedidosEntre(tiempo1 : LocalDateTime, tiempo2 : LocalDateTime) = respuestasRecibidas.filter { it.pedido.fechaHora.isAfter(tiempo1) && it.pedido.fechaHora.isBefore(tiempo2) }.size
+
+  fun cantidadDeRespuestasCon(palabra: String) = respuestasRecibidas.count{ it.body.contains(palabra)}
+
+  fun porcentajeDePedidosConExito() = (respuestasRecibidas.count { it.codigo == CodigoHttp.OK } * 100) / respuestasRecibidas.size
+
 }

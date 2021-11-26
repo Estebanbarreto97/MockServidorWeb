@@ -56,7 +56,29 @@ class Analizadores : DescribeSpec({
     val respuesta2 = RespuestaHttp(CodigoHttp.OK, "Todo bien, soy respuesta2", 25, pedido1)
     val respuesta3 = RespuestaHttp(CodigoHttp.OK, "Todo bien, soy respuesta3", 18, pedido1)
     val modulo1 = Modulo(listOf("hola, que tal"), "bien", 35, "Modulo1")
+    val estadisticaAnalizador = estadistica()
 
+    it("cantidad de pedido entre fechas"){
+      estadisticaAnalizador.respuestasRecibidas.add(respuesta1)
+      estadisticaAnalizador.cantidadDePedidosEntre(LocalDateTime.of(2020, 10, 30, 11, 50, 11),LocalDateTime.of(2020, 10, 30, 11, 50, 15)).shouldBe(1)
+    }
+    it("cantidad de respuestas con string"){
+      estadisticaAnalizador.respuestasRecibidas.add(respuesta1)
+      estadisticaAnalizador.respuestasRecibidas.add(respuesta2)
+      estadisticaAnalizador.cantidadDeRespuestasCon("respuesta1").shouldBe(1)
+    }
+    it("tiempo de respuesta promedio"){
+      estadisticaAnalizador.respuestasRecibidas.add(respuesta1)
+      estadisticaAnalizador.respuestasRecibidas.add(respuesta2)
+      estadisticaAnalizador.respuestasRecibidas.add(respuesta3)
+      estadisticaAnalizador.tiempoDeRespuestaPromedio().shouldBe(24)
+    }
+    it("pedidos con exito"){
+      estadisticaAnalizador.respuestasRecibidas.add(respuesta1)
+      estadisticaAnalizador.respuestasRecibidas.add(respuesta2)
+      estadisticaAnalizador.respuestasRecibidas.add(respuesta3)
+      estadisticaAnalizador.porcentajeDePedidosConExito().shouldBe(100)
+    }
   }
 
 
