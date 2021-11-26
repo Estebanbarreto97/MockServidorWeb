@@ -5,15 +5,22 @@ import io.kotest.matchers.shouldBe
 import java.time.LocalDateTime
 
 class ServidorWebTest : DescribeSpec({
+  val modulo1 = Modulo(listOf("pdf", "jpeg", "png"), "Hola, soy modulo1", 20, "Modulo1")
+  val modulo2 = Modulo(listOf("com", "doc", "py"), "Hola, soy modulo2", 18, "Modulo2")
+  val modulo3 = Modulo(listOf("ar", "xl", "gif"), "Hola, soy modulo3", 25, "Modulo3")
+  ServidorWeb.agregarModulo(modulo1)
+  ServidorWeb.agregarModulo(modulo2)
+  ServidorWeb.agregarModulo(modulo3)
+
   describe("Servidor web") {
     describe("procesar un pedido") {
       it("devuelve respuesta OK"){
         val pedidoOK = PedidoHttp("192.168.32.2", "http://losreubicados.com/ideas.pdf", LocalDateTime.of(2020, 10, 30, 11, 50, 12))
-        ServidorWeb.procesar(pedidoOK).codigo.shouldBe(CodigoHttp.OK)
+        ServidorWeb.respuestaDelModulo(pedidoOK).codigo.shouldBe(CodigoHttp.OK)
       }
       it("devuelve Not implemented codigo 501"){
         val pedido501 = PedidoHttp("192.168.32.2", "https://losreubicados.com/ideas.pdf", LocalDateTime.of(2020, 10, 30, 11, 50, 12))
-        ServidorWeb.procesar(pedido501).codigo.shouldBe(CodigoHttp.NOT_IMPLEMENTED)
+        ServidorWeb.respuestaDelModulo(pedido501).codigo.shouldBe(CodigoHttp.NOT_IMPLEMENTED)
       }
     }
     describe("obtener string") {
@@ -28,18 +35,13 @@ class ServidorWebTest : DescribeSpec({
       }
     }
     describe("prueba de módulos") {
-      val modulo1 = ServidorWeb.Modulo(listOf("pdf", "jpeg", "png"), "Hola, soy modulo1", 20, "Modulo1")
-      val modulo2 = ServidorWeb.Modulo(listOf("com", "doc", "py"), "Hola, soy modulo2", 18, "Modulo2")
-      val modulo3 = ServidorWeb.Modulo(listOf("ar", "xl", "gif"), "Hola, soy modulo3", 25, "Modulo3")
-      ServidorWeb.agregarModulo(modulo1)
-      ServidorWeb.agregarModulo(modulo2)
-      ServidorWeb.agregarModulo(modulo3)
+
       it("módulo que da respuesta OK") {
         val pedidoOK = PedidoHttp("192.168.32.2", "http://losreubicados.com/ideas.pdf", LocalDateTime.of(2020, 10, 30, 11, 50, 12))
         ServidorWeb.respuestaDelModulo(pedidoOK).shouldBe(RespuestaHttp(CodigoHttp.OK, modulo1.devuelve, modulo1.tiempo, pedidoOK))
       }
       it("respuesta del módulo 404") {
-        val pedido404 = PedidoHttp("192.168.32.2", "https://losreubicados.com/ideas.js", LocalDateTime.of(2020, 10, 30, 11, 50, 12))
+        val pedido404 = PedidoHttp("192.168.32.2", "http://losreubicados.com/ideas.js", LocalDateTime.of(2020, 10, 30, 11, 50, 12))
         ServidorWeb.respuestaDelModulo(pedido404).shouldBe(RespuestaHttp(CodigoHttp.NOT_FOUND, "", 10, pedido404))
       }
     }

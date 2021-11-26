@@ -1,26 +1,18 @@
 package ar.edu.unahur.obj2.servidorWeb
 
+import ar.edu.unahur.obj2.servidorWeb.analizadores.Analizador
 import ar.edu.unahur.obj2.servidorWeb.analizadores.AnalizadorIPsSospechosas
 import ar.edu.unahur.obj2.servidorWeb.integraciones.Consola
 
 object ServidorWeb {
   val modulos = mutableListOf<Modulo>()
-  val analizadores = mutableListOf<AnalizadorIPsSospechosas>()
+  val analizadores = mutableListOf<Analizador>()
 
-  fun agregarAnalizador(analizador : AnalizadorIPsSospechosas){
+  fun agregarAnalizador(analizador : Analizador){
     analizadores.add(analizador)}
 
-  fun removerAnalizador(analizador: AnalizadorIPsSospechosas){
+  fun removerAnalizador(analizador: Analizador){
     analizadores.remove(analizador)
-  }
-
-  fun procesar(pedido: PedidoHttp): RespuestaHttp {
-    if (obtenerProtocoloUrl(pedido.url) != "http") {
-      return RespuestaHttp(CodigoHttp.NOT_IMPLEMENTED,"", 10, pedido)
-    }
-    else {
-      return RespuestaHttp(CodigoHttp.OK, "cualquier cosa", 200, pedido)
-    }
   }
 
   fun obtenerProtocoloUrl(url: String) = url.substringBefore(":")
@@ -32,21 +24,33 @@ object ServidorWeb {
   fun moduloElegido(pedido: PedidoHttp) = modulos.find{x -> x.extension.any{x -> x == obtenerExtensionUrl(pedido.url)}}
 
   fun respuestaDelModulo(pedido: PedidoHttp): RespuestaHttp {
-    if (modulos.any{x -> x.extension.any{x -> x == obtenerExtensionUrl(pedido.url)}}) {
-      return RespuestaHttp(CodigoHttp.OK, moduloElegido(pedido)!!.devuelve, moduloElegido(pedido)!!.tiempo, pedido)
+    lateinit  var respuesta : RespuestaHttp
+    if (obtenerProtocoloUrl(pedido.url) != "http") {
+      respuesta = RespuestaHttp(CodigoHttp.NOT_IMPLEMENTED,"", 10, pedido)
     }
     else {
-      return RespuestaHttp(CodigoHttp.NOT_FOUND, "", 10, pedido)
+      if (modulos.any { x -> x.extension.any { x -> x == obtenerExtensionUrl(pedido.url) } }) {
+        respuesta = RespuestaHttp(CodigoHttp.OK, moduloElegido(pedido)!!.devuelve, moduloElegido(pedido)!!.tiempo, pedido)
+      } else {
+        respuesta = RespuestaHttp(CodigoHttp.NOT_FOUND, "", 10, pedido)
+      }
     }
+    if(respuesta.codigo != CodigoHttp.NOT_FOUND)
+      enviarAnalizar(respuesta, moduloElegido(pedido)!!)
+    else
+      enviarAnalizar(respuesta, Modulo(emptyList(),"",10,""))
+    return respuesta
   }
 
   fun agregarModulo(unModulo: Modulo) { modulos.add(unModulo) }
 
   fun removerModulo(unModulo: Modulo) { modulos.remove(unModulo) }
 
-  class Modulo(val extension: List<String>, val devuelve: String, val tiempo: Int, val nombre: String)
+
 
   fun enviarAnalizar(respuesta : RespuestaHttp, modulo: Modulo){
     analizadores.forEach{it.analizar(respuesta, modulo)}
   }
 }
+
+class Modulo(val extension: List<String>, val devuelve: String, val tiempo: Int, val nombre: String)
